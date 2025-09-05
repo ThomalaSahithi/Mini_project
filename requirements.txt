@@ -3,5 +3,7 @@ pandas
 scikit-learn
 pickle-mixin
 gunicorn
+flask
+
 
 
