@@ -1,17 +1,32 @@
-
-from  flask import Flask, render_template, request
+from flask import Flask, render_template, request
 import numpy as np
 import pickle
+import logging
 
 # Initialize Flask App
 app = Flask(__name__)
 
-# Load the trained model and scaler
-# Load the models
-rfc = pickle.load(open('model.pkl', 'rb'))
-gnb = pickle.load(open('gnb_model.pkl', 'rb'))
-ms = pickle.load(open('minmaxscaler.pkl', 'rb'))
+# Global variables for models and scaler
+rfc = None
+gnb = None
+ms = None
 
+# Function to load models only when needed
+def load_models():
+    global rfc, gnb, ms
+    if rfc is None or gnb is None or ms is None:
+        try:
+            with open('model.pkl', 'rb') as f:
+                rfc = pickle.load(f)
+            with open('gnb_model.pkl', 'rb') as f:
+                gnb = pickle.load(f)
+            with open('minmaxscaler.pkl', 'rb') as f:
+                ms = pickle.load(f)
+            app.logger.info("✅ Models loaded successfully.")
+        except Exception as e:
+            app.logger.error(f"❌ Error loading models: {e}")
+            return False
+    return True
 
 # Crop Dictionary Mapping
 crop_dict = {
@@ -22,21 +37,19 @@ crop_dict = {
     20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
 }
 
-
-# Home Route to Render index.html
+# Home Route
 @app.route('/')
 def home():
     return render_template('index.html')
 
-
 # Function for Crop Recommendation
-def recommendation(N, P, k, temperature, humidity, ph, rainfall, model_type="rfc"):
-    features = np.array([[N, P, k, temperature, humidity, ph, rainfall]])
+def recommendation(N, P, K, temperature, humidity, ph, rainfall, model_type="rfc"):
+    if not load_models():
+        return None
 
-    # Transform using MinMaxScaler
+    features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
     transformed_features = ms.transform(features)
 
-    # Choose model based on parameter
     if model_type == "gnb":
         prediction = gnb.predict(transformed_features)
     else:
@@ -44,34 +57,36 @@ def recommendation(N, P, k, temperature, humidity, ph, rainfall, model_type="rfc
 
     return prediction[0]
 
-
-# Route to Handle Prediction and Show Results
+# Prediction Route
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get input values from the form
-    N = float(request.form['N'])
-    P = float(request.form['P'])
-    K = float(request.form['K'])
-    temperature = float(request.form['temperature'])
-    humidity = float(request.form['humidity'])
-    ph = float(request.form['ph'])
-    rainfall = float(request.form['rainfall'])
+    try:
+        N = float(request.form['N'])
+        P = float(request.form['P'])
+        K = float(request.form['K'])
+        temperature = float(request.form['temperature'])
+        humidity = float(request.form['humidity'])
+        ph = float(request.form['ph'])
+        rainfall = float(request.form['rainfall'])
 
-    # Get prediction
-    crop_code = recommendation(N, P, K, temperature, humidity, ph, rainfall)
-    crop_name = crop_dict.get(crop_code, "Unknown")
+        crop_code = recommendation(N, P, K, temperature, humidity, ph, rainfall)
+        if crop_code is None:
+            return "Error loading model. Check logs.", 500
 
-    # Render result page with entered details and predicted output
-    return render_template(
-        'result.html',
-        N=N, P=P, K=K,
-        temperature=temperature,
-        humidity=humidity,
-        ph=ph, rainfall=rainfall,
-        crop=crop_name
-    )
+        crop_name = crop_dict.get(crop_code, "Unknown")
 
+        return render_template(
+            'result.html',
+            N=N, P=P, K=K,
+            temperature=temperature,
+            humidity=humidity,
+            ph=ph, rainfall=rainfall,
+            crop=crop_name
+        )
+    except Exception as e:
+        app.logger.error(f"Prediction error: {e}")
+        return f"Error: {e}", 400
 
 # Run the Flask App
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
