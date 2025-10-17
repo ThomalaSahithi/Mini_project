@@ -1,4 +1,4 @@
-/* Global Styles */
+/* === Global Styles === */
 body {
     background-image: url("../images/farm-bg.jpg");
     background-size: cover;
@@ -6,9 +6,9 @@ body {
     font-family: 'Arial', sans-serif;
 }
 
-/* Container Styling */
+/* === Main Container === */
 .container {
-    background-color: rgba(255, 255, 255, 0.cdcd crop8);
+    background-color: rgba(255, 255, 255, 0.9);
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -16,34 +16,53 @@ body {
     max-width: 700px;
 }
 
-/* Heading Styles */
+/* === Headings === */
 h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #28a745;
+    font-weight: 700;
 }
 
-/* Form Group Styles */
-.form-group label {
+/* === Labels and Small Text === */
+label {
     font-weight: bold;
     color: #333;
 }
 
-/* Input Fields */
+small {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* === Form Inputs === */
 .form-control {
     border-radius: 8px;
     padding: 12px;
+    border: 1px solid #ccc;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.4);
+}
+
+/* === Buttons === */
+.btn-predict, .btn-home {
+    font-size: 18px;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
 }
 
 /* Predict Button */
 .btn-predict {
     background-color: #28a745;
     color: #fff;
-    font-size: 18px;
-    padding: 12px;
-    width: 100%;
-    border-radius: 10px;
-    transition: all 0.3s ease-in-out;
 }
 
 .btn-predict:hover {
@@ -55,11 +74,6 @@ h2 {
 .btn-home {
     background-color: #007bff;
     color: #fff;
-    padding: 12px;
-    width: 100%;
-    border-radius: 10px;
-    font-size: 18px;
-    transition: all 0.3s ease-in-out;
 }
 
 .btn-home:hover {
@@ -67,13 +81,31 @@ h2 {
     transform: scale(1.05);
 }
 
-/* Result Box */
+/* === Alert Messages === */
+.alert {
+    border-radius: 10px;
+    padding: 15px 20px;
+    font-size: 15px;
+}
+
+.alert-info {
+    background-color: #e6f7e9;
+    border: 1px solid #28a745;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+/* === Result Page === */
 .result-box {
     text-align: center;
     margin-top: 20px;
 }
 
-/* Crop Image */
 .result-box img {
     width: 200px;
     height: 200px;
@@ -81,7 +113,27 @@ h2 {
     margin-top: 10px;
 }
 
-/* Footer */
+/* Crop List for Top 5 Recommendations */
+.crop-list {
+    list-style: none;
+    padding: 0;
+}
+
+.crop-list li {
+    background: #e6ffe6;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.crop-list li:hover {
+    background-color: #c2f0c2;
+}
+
+/* === Footer === */
 footer {
     text-align: center;
     margin-top: 20px;
