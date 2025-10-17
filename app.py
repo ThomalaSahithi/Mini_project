@@ -3,23 +3,19 @@ import numpy as np
 import pickle
 import logging
 
-# Initialize Flask App
 app = Flask(__name__)
 
 # Global variables for models and scaler
 rfc = None
-gnb = None
 ms = None
 
-# Function to load models only when needed
+# Load models when needed
 def load_models():
-    global rfc, gnb, ms
-    if rfc is None or gnb is None or ms is None:
+    global rfc, ms
+    if rfc is None or ms is None:
         try:
             with open('model.pkl', 'rb') as f:
                 rfc = pickle.load(f)
-            with open('gnb_model.pkl', 'rb') as f:
-                gnb = pickle.load(f)
             with open('minmaxscaler.pkl', 'rb') as f:
                 ms = pickle.load(f)
             app.logger.info("✅ Models loaded successfully.")
@@ -28,7 +24,7 @@ def load_models():
             return False
     return True
 
-# Crop Dictionary Mapping
+# Crop mapping
 crop_dict = {
     1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut",
     6: "Papaya", 7: "Orange", 8: "Apple", 9: "Muskmelon", 10: "Watermelon",
@@ -37,27 +33,45 @@ crop_dict = {
     20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
 }
 
-# Home Route
+# ✅ Input validation function
+def validate_input(N, P, K, temperature, humidity, ph, rainfall):
+    if all(v == 0 for v in [N, P, K, temperature, humidity, ph, rainfall]):
+        return "❌ All input values are 0 — no crop can grow!"
+
+    if not (0 <= N <= 140):
+        return "⚠️ Nitrogen (N) must be between 0 and 140."
+    if not (0 <= P <= 145):
+        return "⚠️ Phosphorus (P) must be between 0 and 145."
+    if not (0 <= K <= 205):
+        return "⚠️ Potassium (K) must be between 0 and 205."
+    if not (0 <= temperature <= 50):
+        return "⚠️ Temperature must be between 0°C and 50°C."
+    if not (10 <= humidity <= 100):
+        return "⚠️ Humidity must be between 10% and 100%."
+    if not (3.5 <= ph <= 9):
+        return "⚠️ pH must be between 3.5 and 9."
+    if not (20 <= rainfall <= 500):
+        return "⚠️ Rainfall must be between 20 and 500 mm."
+
+    return None  # valid input
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Function for Crop Recommendation
-def recommendation(N, P, K, temperature, humidity, ph, rainfall, model_type="rfc"):
+# ✅ Recommend top 5 crops
+def recommend_crops(N, P, K, temperature, humidity, ph, rainfall):
     if not load_models():
         return None
 
     features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-    transformed_features = ms.transform(features)
+    transformed = ms.transform(features)
 
-    if model_type == "gnb":
-        prediction = gnb.predict(transformed_features)
-    else:
-        prediction = rfc.predict(transformed_features)
+    probs = rfc.predict_proba(transformed)[0]
+    top_indices = np.argsort(probs)[::-1][:5]
+    top_crops = [crop_dict.get(i + 1, "Unknown") for i in top_indices]
+    return top_crops
 
-    return prediction[0]
-
-# Prediction Route
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -69,24 +83,26 @@ def predict():
         ph = float(request.form['ph'])
         rainfall = float(request.form['rainfall'])
 
-        crop_code = recommendation(N, P, K, temperature, humidity, ph, rainfall)
-        if crop_code is None:
-            return "Error loading model. Check logs.", 500
+        # Validate input
+        error = validate_input(N, P, K, temperature, humidity, ph, rainfall)
+        if error:
+            return render_template('result.html', error=error)
 
-        crop_name = crop_dict.get(crop_code, "Unknown")
+        top_crops = recommend_crops(N, P, K, temperature, humidity, ph, rainfall)
+        if top_crops is None:
+            return "❌ Error loading model.", 500
 
         return render_template(
             'result.html',
             N=N, P=P, K=K,
-            temperature=temperature,
-            humidity=humidity,
+            temperature=temperature, humidity=humidity,
             ph=ph, rainfall=rainfall,
-            crop=crop_name
+            crops=top_crops
         )
+
     except Exception as e:
         app.logger.error(f"Prediction error: {e}")
         return f"Error: {e}", 400
 
-# Run the Flask App
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
