@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Prediction Result</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -16,15 +15,32 @@
             background-color: rgba(255, 255, 255, 0.95);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            margin-top: 80px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            margin-top: 60px;
             max-width: 700px;
+            text-align: center;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #28a745;
+        .crop-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .crop-item {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            width: 140px;
+        }
+
+        .crop-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
         .btn-home {
@@ -34,55 +50,35 @@
             width: 100%;
             border-radius: 10px;
             font-size: 18px;
+            margin-top: 20px;
         }
 
         .btn-home:hover {
             background-color: #0056b3;
         }
-
-        .result-box {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .result-box img {
-            width: 200px;
-            height: 200px;
-            border-radius: 15px;
-            margin-top: 10px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>🌾 Prediction Result 🌱</h2>
-
-        <div class="result-box">
-            <h4>✅ You entered the following details:</h4>
-            <p><strong>Nitrogen (N):</strong> {{ N }} | <strong>Phosphorus (P):</strong> {{ P }} | <strong>Potassium (K):</strong> {{ K }}</p>
-            <p><strong>Temperature:</strong> {{ temperature }}°C | <strong>Humidity:</strong> {{ humidity }}% | <strong>pH:</strong> {{ ph }} | <strong>Rainfall:</strong> {{ rainfall }}mm</p>
-
-            <hr>
-
-            <h4>🌱 Best Recommended Crop:</h4>
-            <h3><strong>{{ crop }}</strong></h3>
-
-            <img src="{{ url_for('static', filename='images/' + crop.lower() + '.jpg') }}" onerror="this.src='{{ url_for('static', filename='images/default.jpg') }}';" alt="Crop Image">
+<div class="container">
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        <a href="/" class="btn btn-home">🔙 Go Back</a>
+    {% else %}
+        <h2>🌾 Top 5 Recommended Crops 🌱</h2>
+        <div class="crop-list">
+            {% for crop in crops %}
+                <div class="crop-item">
+                    <img src="{{ url_for('static', filename='images/' + crop.lower() + '.jpg') }}"
+                         onerror="this.src='{{ url_for('static', filename='images/default.jpg') }}';"
+                         alt="{{ crop }}">
+                    <strong>{{ crop }}</strong>
+                </div>
+            {% endfor %}
         </div>
-
-        <a href="/" class="btn btn-home mt-3">🔙 Go Back to Home</a>
-
-        <footer>
-            <p>Developed by <strong>Sahithi</strong> | © 2025 Crop Recommendation System</p>
-        </footer>
-    </div>
+        <a href="/" class="btn btn-home">🔙 Go Back</a>
+    {% endif %}
+</div>
 
 </body>
 </html>
