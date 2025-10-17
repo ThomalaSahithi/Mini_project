@@ -2,9 +2,7 @@
 <html>
 <head>
     <title>Crop Recommendation System</title>
-    <!-- Bootstrap CSS for modern styling -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
             background-image: url("{{ url_for('static', filename='images/farm-bg.jpg') }}");
@@ -14,18 +12,18 @@
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.92);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             margin-top: 80px;
             max-width: 700px;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
             color: #28a745;
+            margin-bottom: 20px;
         }
 
         .btn-predict {
@@ -40,67 +38,57 @@
         .btn-predict:hover {
             background-color: #218838;
         }
-
-        label {
-            font-weight: bold;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>🌾 Crop Recommendation System 🌱</h2>
+<div class="container">
+    <h2>🌾 Crop Recommendation System 🌱</h2>
 
-        <!-- Form to collect input -->
-        <form action="/predict" method="post">
-            <div class="form-group">
-                <label for="N">Nitrogen (N)</label>
-                <input type="number" class="form-control" id="N" name="N" required>
-            </div>
-
-            <div class="form-group">
-                <label for="P">Phosphorus (P)</label>
-                <input type="number" class="form-control" id="P" name="P" required>
-            </div>
-
-            <div class="form-group">
-                <label for="K">Potassium (K)</label>
-                <input type="number" class="form-control" id="K" name="K" required>
-            </div>
-
-            <div class="form-group">
-                <label for="temperature">Temperature (°C)</label>
-                <input type="number" class="form-control" step="0.1" id="temperature" name="temperature" required>
-            </div>
-
-            <div class="form-group">
-                <label for="humidity">Humidity (%)</label>
-                <input type="number" class="form-control" step="0.1" id="humidity" name="humidity" required>
-            </div>
-
-            <div class="form-group">
-                <label for="ph">pH Level</label>
-                <input type="number" class="form-control" step="0.1" id="ph" name="ph" required>
-            </div>
-
-            <div class="form-group">
-                <label for="rainfall">Rainfall (mm)</label>
-                <input type="number" class="form-control" step="0.1" id="rainfall" name="rainfall" required>
-            </div>
-
-            <button type="submit" class="btn btn-predict">🌱 Predict Best Crop</button>
-        </form>
-
-        <footer>
-            <p>Developed by <strong>Sahithi</strong> | © 2025 Crop Recommendation System</p>
-        </footer>
+    <div class="alert alert-info mt-3">
+        <strong>Note: Please enter realistic agricultural values.</strong><br><br>
+        🌡️ <strong>Temperature:</strong> 0°C to 50°C<br>
+        💧 <strong>Humidity:</strong> 10% to 100%<br>
+        ⚗️ <strong>pH:</strong> 3.5 to 9<br>
+        🌱 <strong>Nitrogen (N):</strong> 0–140<br>
+        🌿 <strong>Phosphorus (P):</strong> 0–145<br>
+        🍃 <strong>Potassium (K):</strong> 0–205<br>
+        🌧️ <strong>Rainfall:</strong> 20–500 mm<br><br>
+        ❌ If all values are 0, no crop can grow.
     </div>
+
+    <form action="/predict" method="post">
+        <div class="form-group">
+            <label for="N">Nitrogen (N)</label>
+            <input type="number" step="0.1" class="form-control" id="N" name="N" required>
+        </div>
+        <div class="form-group">
+            <label for="P">Phosphorus (P)</label>
+            <input type="number" step="0.1" class="form-control" id="P" name="P" required>
+        </div>
+        <div class="form-group">
+            <label for="K">Potassium (K)</label>
+            <input type="number" step="0.1" class="form-control" id="K" name="K" required>
+        </div>
+        <div class="form-group">
+            <label for="temperature">Temperature (°C)</label>
+            <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" required>
+        </div>
+        <div class="form-group">
+            <label for="humidity">Humidity (%)</label>
+            <input type="number" step="0.1" class="form-control" id="humidity" name="humidity" required>
+        </div>
+        <div class="form-group">
+            <label for="ph">pH Level</label>
+            <input type="number" step="0.1" class="form-control" id="ph" name="ph" required>
+        </div>
+        <div class="form-group">
+            <label for="rainfall">Rainfall (mm)</label>
+            <input type="number" step="0.1" class="form-control" id="rainfall" name="rainfall" required>
+        </div>
+        <button type="submit" class="btn btn-predict">🌱 Predict Best Crops</button>
+    </form>
+</div>
 
 </body>
 </html>
